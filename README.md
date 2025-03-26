@@ -10,7 +10,7 @@ This repository provides a Python-based client for interacting with the BotCircu
 ## Prerequisites
 
 - Python 3.9+
-- An environment with your BotCircuits credentials (e.g., `BOTCIRCUITS_API_KEY`, `BOTCIRCUITS_APP_ID`) defined—commonly stored in a `.env` file.
+- An environment with your BotCircuits credentials (e.g., `BOTCIRCUITS_API_KEY`, `BOTCIRCUITS_APP_ID`) stored in a `.env` file.
 
 ---
 
