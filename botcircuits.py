@@ -62,7 +62,6 @@ class BotCircuits:
         endpoint = f"{WEBSOCKET_API}?header={headers_bytes}&payload=e30="
 
         async with websockets.connect(endpoint, subprotocols=["graphql-ws"]) as websocket:
-            print("[Connected]")
             # connection_init
             await websocket.send(json.dumps({"type": "connection_init"}))
 
@@ -183,6 +182,8 @@ class BotCircuits:
                 if resp.status != 200:
                     text = await resp.text()
                     raise RuntimeError(f"HTTP {resp.status} - {text}")
+                else:
+                    print("[Thinking...]")
 
     async def close(self):
         """Convenient close method that calls stop_subscription."""

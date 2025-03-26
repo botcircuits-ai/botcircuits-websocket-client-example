@@ -29,15 +29,21 @@ async def main():
     # Start subscription with our async callback
     await bot.start_subscription(on_message)
 
-    # Send a test message
-    await bot.send_message(Request(textMessage="Hello"))
+    print("Type a message to send to the bot. Type '/q' to quit.")
 
-    try:
-        # Keep running for 30s
-        await asyncio.sleep(30)
-    finally:
-        # Gracefully close the bot connection
-        await bot.close()
+    # Continuously read user input and send to the bot
+    while True:
+        user_input = await asyncio.to_thread(input)
+
+        # Check for exit condition
+        if user_input.strip().lower() == "/q":
+            print("[Exiting]")
+            break
+
+        if user_input.strip():
+            await bot.send_message(Request(textMessage=user_input))
+
+    await bot.close()
 
 
 if __name__ == "__main__":
