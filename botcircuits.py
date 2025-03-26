@@ -18,7 +18,6 @@ class Options(BaseModel):
 
 class Request(BaseModel):
     textMessage: Optional[str] = None
-    voiceMessage: Optional[str] = None
 
 
 class Message(BaseModel):
@@ -161,8 +160,7 @@ class BotCircuits:
             "action": "executor",
             "appId": self.options.appId,
             "sessionId": self.session_id,
-            "inputText": request.textMessage,
-            "voiceMessage": request.voiceMessage,
+            "inputText": request.textMessage
         })
 
         variables = {
