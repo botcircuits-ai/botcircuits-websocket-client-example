@@ -2,6 +2,7 @@ import asyncio
 import os
 
 from dotenv import load_dotenv
+import uuid
 
 load_dotenv()
 
@@ -17,11 +18,13 @@ async def on_message(msg: Message):
 
 async def main():
     options = Options(
-        appId=os.getenv('BOTCIRCUITS_APP_ID'),
-        apiKey=os.getenv('BOTCIRCUITS_API_KEY')
+        app_id=os.getenv('BOTCIRCUITS_APP_ID'),
+        api_key=os.getenv('BOTCIRCUITS_API_KEY')
     )
 
-    bot = BotCircuits(options, session_id="session-123")
+    session_id = str(uuid.uuid4())
+
+    bot = BotCircuits(options, session_id)
 
     # Start subscription with our async callback
     await bot.start_subscription(on_message)

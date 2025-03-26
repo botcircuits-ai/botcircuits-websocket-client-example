@@ -12,8 +12,8 @@ WEBSOCKET_API = f"wss://{HOST}/graphql/realtime"
 
 
 class Options(BaseModel):
-    apiKey: str
-    appId: str
+    app_id: str
+    api_key: str
 
 
 class Request(BaseModel):
@@ -54,7 +54,7 @@ class BotCircuits:
 
         # Prepare headers for connection
         header_dict = {
-            "Authorization": self.options.apiKey,
+            "Authorization": self.options.api_key,
             "host": HOST
         }
         headers_bytes = base64.b64encode(json.dumps(header_dict).encode("utf-8")).decode("utf-8")
@@ -82,13 +82,13 @@ class BotCircuits:
                     "data": json.dumps({
                         "query": query,
                         "variables": {
-                            "appId": self.options.appId,
+                            "appId": self.options.app_id,
                             "sessionId": self.session_id
                         }
                     }),
                     "extensions": {
                         "authorization": {
-                            "Authorization": self.options.apiKey,
+                            "Authorization": self.options.api_key,
                             "host": HOST,
                             "x-amz-user-agent": "aws-amplify/4.7.14 js"
                         }
@@ -158,13 +158,13 @@ class BotCircuits:
         """
         request_data = json.dumps({
             "action": "executor",
-            "appId": self.options.appId,
+            "appId": self.options.app_id,
             "sessionId": self.session_id,
             "inputText": request.textMessage
         })
 
         variables = {
-            "appId": self.options.appId,
+            "appId": self.options.app_id,
             "sessionId": self.session_id,
             "data": request_data,
         }
@@ -176,7 +176,7 @@ class BotCircuits:
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 GRAPHQL_HTTP_API,
-                headers={"Authorization": self.options.apiKey},
+                headers={"Authorization": self.options.api_key},
                 json=payload,
                 timeout=10
             ) as resp:
