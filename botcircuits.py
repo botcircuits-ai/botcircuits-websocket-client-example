@@ -4,7 +4,7 @@ import asyncio
 import base64
 import aiohttp
 from pydantic import BaseModel
-from typing import Optional, Callable, Coroutine
+from typing import Optional, Callable, Coroutine, Any
 
 HOST = os.getenv("BOTCIRCUITS_HOST")
 GRAPHQL_HTTP_API = f"https://{HOST}/graphql"
@@ -21,6 +21,12 @@ class Request(BaseModel):
     voiceMessage: Optional[str] = None
 
 
+class Message(BaseModel):
+    """Represents the bot message structure."""
+    type: str
+    content: Any
+
+
 class BotCircuits:
     def __init__(self, options: Options, session_id: str):
         self.options = options
@@ -28,13 +34,14 @@ class BotCircuits:
 
         # We'll store our subscription task so we can cancel it later
         self._subscription_task: Optional[asyncio.Task] = None
-        self._on_message_callback: Optional[Callable[[str], None]] = None
+        # The callback now expects a `Message` object
+        self._on_message_callback: Optional[Callable[[Message], Coroutine[Any, Any, None]]] = None
 
-    async def start_subscription(self, on_message: Callable[[str], None]):
+    async def start_subscription(self, on_message: Callable[[Message], Coroutine[Any, Any, None]]):
         """
         Method to begin listening to subscription messages.
         Internally spawns a background task that calls `_subscribe`.
-        `on_message` is a callback that receives the string message.
+        `on_message` is an async callback that receives a `Message` object.
         """
         if self._subscription_task is not None:
             # Already started
@@ -44,11 +51,7 @@ class BotCircuits:
         self._subscription_task = asyncio.create_task(self._subscribe())
 
     async def _subscribe(self):
-        """
-        An internal async function that handles the actual WebSocket subscription,
-        and calls the user-provided callback whenever new messages arrive.
-        """
-        import websockets  # install: pip install websockets
+        import websockets  # pip install websockets
 
         # Prepare headers for connection
         header_dict = {
@@ -60,7 +63,6 @@ class BotCircuits:
         endpoint = f"{WEBSOCKET_API}?header={headers_bytes}&payload=e30="
 
         async with websockets.connect(endpoint, subprotocols=["graphql-ws"]) as websocket:
-
             print("[Connected]")
             # connection_init
             await websocket.send(json.dumps({"type": "connection_init"}))
@@ -112,13 +114,18 @@ class BotCircuits:
                             original_data_str = subscribe_data.get("data")
                             if original_data_str:
                                 original_message = json.loads(original_data_str)
-                                text = original_message.get("message")
-                                if text and self._on_message_callback:
-                                    await self._on_message_callback(text)
+                                # Expecting structure: {"message": {"type": "...", "content": ...}}
+                                bot_msg_dict = original_message.get("message", {})
+                                if bot_msg_dict and self._on_message_callback:
+                                    try:
+                                        # Parse into a Message object
+                                        msg_obj = Message(**bot_msg_dict)
+                                        await self._on_message_callback(msg_obj)
+                                    except Exception as e:
+                                        print("[Parse Error]", e)
 
                     elif msg_type == "connection_error":
                         errors = message.get("payload", {}).get("errors", [])
-                        # You could handle or raise them; here we just log or print
                         print("[Subscription Error]", errors)
 
             except asyncio.CancelledError:
