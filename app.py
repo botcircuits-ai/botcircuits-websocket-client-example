@@ -41,7 +41,9 @@ async def main():
             break
 
         if user_input.strip():
-            await bot.send_message(Request(textMessage=user_input))
+            # for the whatsapp channels, set user's phone_number into requestAttributes
+            test_phone_no = "94713132456"
+            await bot.send_message(Request(textMessage=user_input, requestAttributes={"phone_number": test_phone_no}))
 
     await bot.close()
 

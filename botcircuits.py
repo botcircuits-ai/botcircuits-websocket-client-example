@@ -4,7 +4,7 @@ import asyncio
 import base64
 import aiohttp
 from pydantic import BaseModel
-from typing import Optional, Callable, Coroutine, Any
+from typing import Optional, Callable, Coroutine, Any, Dict
 
 HOST = os.getenv("BOTCIRCUITS_HOST")
 GRAPHQL_HTTP_API = f"https://{HOST}/graphql"
@@ -18,6 +18,7 @@ class Options(BaseModel):
 
 class Request(BaseModel):
     textMessage: Optional[str] = None
+    requestAttributes: Optional[Dict[str, Any]] = None
 
 
 class Message(BaseModel):
@@ -159,7 +160,8 @@ class BotCircuits:
             "action": "executor",
             "appId": self.options.app_id,
             "sessionId": self.session_id,
-            "inputText": request.textMessage
+            "inputText": request.textMessage,
+            "requestAttributes": request.requestAttributes
         })
 
         variables = {
