@@ -44,3 +44,40 @@
   }
 }
 ```
+
+## Type : CARDS
+### Example payload
+```json
+{
+  "type": "CARDS",
+  "content": {
+    "displayText": "How can I help you?",
+    "cards": [
+      {
+        "title": "Loan Inquiries",
+        "image": "<image url>",
+        "buttons": [
+          {
+            "actionType": "set_value",
+            "slot": "loan_inq",
+            "title": "Eligibility",
+            "payload": "eligi"
+          },
+          {
+            "actionType": "set_value",
+            "slot": "loan_inq",
+            "title": "Documents Required",
+            "payload": "docs"
+          },
+          {
+            "actionType": "set_value",
+            "slot": "loan_inq",
+            "title": "More Info",
+            "payload": "more"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
